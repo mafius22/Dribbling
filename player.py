@@ -6,7 +6,8 @@ class Player:
         self.game = game
         self.y = self.game.display.height//2
         self.x = 100
-        self.speed = 3
+        self.normalSpeed = 3
+        self.speed = self.normalSpeed
         self.size = (40, 40)
         self.animation = self.game.assets['player/run'].copy()
         self.head_image = self.game.assets['player/head']
@@ -20,8 +21,12 @@ class Player:
     def keep_in_field(self):
         if self.y < 0:
             self.reset()
+            if self.game.goal:
+                self.game.music['boo'].play()
         if self.y > self.game.display.height - self.size[1] - 5:
             self.reset()
+            if self.game.goal:
+                self.game.music['boo'].play()
 
     def rect(self):
         return pygame.rect.Rect(self.x+5, self.y+5, self.size[0]-10, self.size[1]-10)
@@ -36,6 +41,8 @@ class Player:
             if enemy.rect().colliderect(self.rect()):
                 self.kickedBall = True
                 if self.ballPos == [0, 0]:
+                    if self.game.goal:
+                        self.game.music['boo'].play()
                     self.ballPos = [self.x+30, self.y+20]
 
         if self.kickedBall:
@@ -55,6 +62,7 @@ class Player:
         self.kickedBall = False
         self.ballPos = [0, 0]
         self.time = 0
+        self.game.goal = True
 
     def render(self, movement):
         if movement:

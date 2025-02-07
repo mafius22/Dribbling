@@ -6,7 +6,8 @@ class Enemy:
         self.game = game
         self.x = x
         self.y = y
-        self.speed = 2
+        self.normalSpeed = 3
+        self.speed = self.normalSpeed
         self.size = (40, 40)
         self.remove = False
         if y == True:
@@ -23,9 +24,10 @@ class Enemy:
         return pygame.rect.Rect(self.x+10, self.y+5, self.size[0]-20, self.size[1]-10)
 
     def update(self):
-        self.x -= 3
+        self.x -= self.speed
         if self.x < -50:
             self.remove = True
+
         self.animation.update()
 
     def render(self):

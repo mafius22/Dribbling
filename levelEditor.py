@@ -3,7 +3,7 @@ import sys
 from utils import *
 from map import Map
 
-MAP = 1
+MAP = 2
 
 class Editor:
     def __init__(self):
