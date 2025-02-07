@@ -3,7 +3,7 @@ import sys
 from utils import *
 from map import Map
 
-MAP = 2
+MAP = 3
 
 class Editor:
     def __init__(self):
@@ -15,9 +15,12 @@ class Editor:
         self.fps = 60
 
         self.assets = {
-            'enemy': load_sheet('enemy1.png', 40, 40, 1, 8)[0],
+            'enemy0': load_sheet('enemy1.png', 40, 40, 1, 8)[0],
+            'enemy1': load_sheet('enemy2.png', 40, 40, 1, 8)[0],
             'field': load_image('field.png')
         }
+
+        self.number = 0
 
         self.speed = 10
 
@@ -43,6 +46,9 @@ class Editor:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_d:
                     self.movement[1] = True
+                if event.key == pygame.K_q:
+                    self.number += 1
+                    self.number %= 2
                 if event.key == pygame.K_a:
                     self.movement[0] = True
                 if event.key == pygame.K_o:
@@ -59,13 +65,13 @@ class Editor:
                 if event.button == 1:
                     mouse = pygame.mouse.get_pos()
                     mouse = [mouse[0]//2, mouse[1]//2]
-                    self.map.positions.append((mouse[0]+self.offset-20, mouse[1]-20))
+                    self.map.positions.append((mouse[0]+self.offset-20, mouse[1]-20, self.number))
 
                 if event.button == 3:
                     mouse = pygame.mouse.get_pos()
                     mouse = [mouse[0] // 2, mouse[1] // 2]
                     for position in self.map.positions:
-                        if pygame.rect.Rect(position, [40, 40]).collidepoint((mouse[0]+self.offset, mouse[1])):
+                        if pygame.rect.Rect((position[0], position[1]), [40, 40]).collidepoint((mouse[0]+self.offset, mouse[1])):
                             self.map.positions.remove(position)
 
 

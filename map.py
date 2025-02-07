@@ -9,7 +9,7 @@ class Map:
 
     def render(self, offset=0):
         for position in self.positions:
-            self.game.display.blit(self.game.assets['enemy'], (position[0]-offset, position[1]))
+            self.game.display.blit(self.game.assets[f'enemy{position[2]}'], (position[0]-offset, position[1]))
 
 
     #def physics_rects_around(self, pos, k, l):

@@ -3,6 +3,7 @@ import sys
 from player import Player
 from enemy import Enemy
 from map import Map
+from goalkeeper import Goalkeeper
 from utils import *
 
 
@@ -19,22 +20,25 @@ class Game:
         self.assets = {
             'player/run': Animation(load_sheet('player.png', 40, 40, 1, 8), loop=True, img_dur=5),
             'player/head': load_image('player_head.png'),
-            'enemy1/run': Animation(load_sheet('enemy1.png', 40, 40, 1, 8), loop=True, img_dur=5),
-            'enemy2/run': Animation(load_sheet('enemy2.png', 40, 40, 1, 8), loop=True, img_dur=5),
+            'enemy0/run': Animation(load_sheet('enemy1.png', 40, 40, 1, 8), loop=True, img_dur=5),
+            'enemy1/run': Animation(load_sheet('enemy2.png', 40, 40, 1, 8), loop=True, img_dur=5),
             'ball': Animation(load_sheet('ball.png', 16, 16, 1, 4), loop=True, img_dur=5),
             'field': load_image('field.png'),
             'field2': pygame.image.load('data/images/field2.png').convert_alpha(),
             'field3': load_image('field3.png'),
             'trybuny': pygame.image.load('data/images/trybuny.png').convert_alpha(),
+            'goalkeeper': load_image('goalkeeper.png')
         }
 
         self.music = {
-            'goal': pygame.mixer.Sound("data/music/free-crowd-cheering-sounds-02-strong-cheering-rhythmic-cheering-116190 (mp3cut.net).mp3"),
+            'goal': pygame.mixer.Sound("data/music/goal_sound.mp3"),
+            'before_goal': pygame.mixer.Sound("data/music/before_goal_sound.mp3"),
             'messi': pygame.mixer.Sound("data/music/Voicy_Messi, Messi, Messi.mp3"),
+            'ankara_messi': pygame.mixer.Sound("data/music/gol-messi-vs-getafe-narrat-per-puyal-full-hd-1080p-audiotrimmer.mp3"),
             'boo': pygame.mixer.Sound("data/music/crowd-large-outrage-then-booing-reaction-hockey-game-2011-25915 (mp3cut.net).mp3"),
         }
 
-        self.songs = ["data/music/IShowSpeed - World Cup (Official Music Video) (mp3cut.net).mp3", "data/music/We Are One (Ole Ola) [The Official 2014 FIFA World Cup Song] (Olodum Mix).mp3"]
+        self.songs = ["data/music/We Are One (Ole Ola) [The Official 2014 FIFA World Cup Song] (Olodum Mix).mp3", "data/music/IShowSpeed - World Cup (Official Music Video) (mp3cut.net).mp3"]
 
         self.moving = False
         self.moving_mode = False
@@ -43,7 +47,12 @@ class Game:
         self.paused = False
         self.goal = True
 
+        self.time = 0
+        self.timeMessi = 0
+
         self.player = Player(self)
+
+        self.goalkeeper = Goalkeeper(self)
 
         self.map = Map(self)
 
@@ -51,14 +60,17 @@ class Game:
 
         self.loadEnemies()
 
+
     def start_music(self):
         pygame.mixer.music.load(self.songs[0])
-        pygame.mixer.music.set_volume(0.2)
+        pygame.mixer.music.set_volume(0.3)
         pygame.mixer.music.play()
         for song in self.songs[1:]:
             pygame.mixer.music.queue(song)
 
     def loadEnemies(self):
+        self.time = 0
+        self.timeMessi = 0
         try:
             self.map.load(f'map{self.level}.json')
         except FileNotFoundError:
@@ -74,6 +86,7 @@ class Game:
                 enemy.update()
                 if enemy.remove:
                     self.enemies.remove(enemy)
+            self.goalkeeper.update()
             self.player.update(self.moving, self.enemies)
 
     def handle_events(self):
@@ -110,25 +123,30 @@ class Game:
                         self.moving = False
 
     def render_field(self):
-        print(self.level)
         self.offset %= 144
         for i in range(6 - self.end_offset//144):
             self.display.blit(self.assets['field'], (i*144-self.offset, 0))
         if len(self.enemies) == 0:
             self.display.blit(self.assets['field2'], (self.display.width-self.end_offset + 72, 0))
             self.display.blit(self.assets['trybuny'], (self.display.width - self.end_offset + 72 + 144, 0))
+            if self.time == 100:
+                self.music['before_goal'].play()
+            self.time += 1
             if self.goal:
+                self.goalkeeper.move = True
                 self.goal = False
-                self.music['goal'].play()
             if not self.paused:
                 self.end_offset += 2
                 self.offset += 1
-            if self.display.width-self.end_offset + 72 + 100 == self.player.x and self.player.y > 101 and self.player.y + 40 < self.display.height - 105:
+            if self.display.width-self.end_offset + 72 + 100 == self.player.x and self.player.y > 101 and self.player.y + 40 < self.display.height - 105 and  not self.player.kickedBall:
+                self.music['goal'].play()
                 self.level += 1
                 self.player.reset()
+                self.goalkeeper.reset()
                 self.end_offset = 0
             elif self.display.width-self.end_offset + 72 + 100 == self.player.x and not (self.player.y > 101 and self.player.y + 40 < self.display.height - 105):
                 self.player.reset()
+                self.goalkeeper.reset()
 
         if not self.paused:
             self.offset += 1
@@ -138,6 +156,7 @@ class Game:
         self.render_field()
         for enemy in self.enemies:
             enemy.render()
+        self.goalkeeper.render()
         self.player.render(self.moving)
         if len(self.enemies) == 0:
             self.display.blit(self.assets['field3'], (self.display.width - self.end_offset + 72 + 144 - 27, 101))
@@ -147,12 +166,24 @@ class Game:
             self.screen.fill((50,50,50), special_flags=pygame.BLEND_RGBA_MULT)
         pygame.display.update()
 
+    def music_effects(self):
+        if self.level == 2:
+            if self.timeMessi == 750:
+                self.music['messi'].play()
+            self.timeMessi += 1
+
+        if self.level == 3:
+            if self.timeMessi == 590:
+                self.music['ankara_messi'].play()
+            self.timeMessi += 1
+
     def run(self):
         self.start_music()
         while True:
             self.handle_events()
             self.update()
             self.render()
+            self.music_effects()
             self.clock.tick(self.fps)
 
 Game().run()

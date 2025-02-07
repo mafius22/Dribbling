@@ -2,12 +2,15 @@ import pygame
 import random
 
 class Enemy:
-    def __init__(self, game, x,y=True):
+    def __init__(self, game, x, y, number):
         self.game = game
+        self.number = number
+        self.startingY = y
         self.x = x
         self.y = y
         self.normalSpeed = 3
         self.speed = self.normalSpeed
+        self.speedy = self.normalSpeed
         self.size = (40, 40)
         self.remove = False
         if y == True:
@@ -16,8 +19,7 @@ class Enemy:
 
 
     def choose_enemy(self):
-        number = random.randint(1,2)
-        self.animation = self.game.assets[f'enemy{number}/run'].copy()
+        self.animation = self.game.assets[f'enemy{random.randint(0,1)}/run'].copy()
         self.animation.frame = random.randint(0,7)
 
     def rect(self):
@@ -27,6 +29,13 @@ class Enemy:
         self.x -= self.speed
         if self.x < -50:
             self.remove = True
+
+        if self.number == 1:
+            self.y += self.speedy
+            if self.y < self.startingY - 100:
+                self.speedy *= -1
+            elif self.y > self.startingY + 100 - 40:
+                self.speedy *= -1
 
         self.animation.update()
 
