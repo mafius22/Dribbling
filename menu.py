@@ -8,7 +8,7 @@ class Menu:
         self.menu = True
 
     def renderMenu(self, pos):
-        self.game.display.blit(self.game.assets['leo'], (-300,-120))
+        self.game.display.blit(self.game.assets['leo'], (-320,-120))
         self.game.display.blit(self.game.assets['startButton'], self.button)
         if self.button.collidepoint(pos[0]//2, pos[1]//2):
             self.game.display.blit(self.game.assets['startButton2'], self.button)
