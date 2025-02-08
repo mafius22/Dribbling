@@ -30,8 +30,12 @@ class Game:
             'trybuny': pygame.image.load('data/images/trybuny.png').convert_alpha(),
             'goalkeeper': load_image('goalkeeper.png'),
             'startButton': load_image('barcelona2.png'),
-            'startButton2': load_image('barcelona2.2.png'),
-            'leo': load_image('leos.jpg')
+            'startButton2': load_image('barcelona2.3.png'),
+            'leo': load_image('leosipiwo2.jpg'),
+            'trophy': load_image('trophy.png'),
+            'ronaldo': load_image('ronaldo.png'),
+            'wojciech': load_image('wojciech.png'),
+            'slawek': load_image('slawek.png'),
         }
 
         self.music = {
@@ -62,7 +66,7 @@ class Game:
 
         self.menu = Menu(self)
 
-        self.level = 3
+        self.level = 0
 
         self.loadEnemies()
 
