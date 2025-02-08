@@ -5,6 +5,7 @@ from enemy import Enemy
 from map import Map
 from goalkeeper import Goalkeeper
 from utils import *
+from menu import Menu
 
 
 class Game:
@@ -27,7 +28,10 @@ class Game:
             'field2': pygame.image.load('data/images/field2.png').convert_alpha(),
             'field3': load_image('field3.png'),
             'trybuny': pygame.image.load('data/images/trybuny.png').convert_alpha(),
-            'goalkeeper': load_image('goalkeeper.png')
+            'goalkeeper': load_image('goalkeeper.png'),
+            'startButton': load_image('barcelona2.png'),
+            'startButton2': load_image('barcelona2.2.png'),
+            'leo': load_image('leos.jpg')
         }
 
         self.music = {
@@ -55,6 +59,8 @@ class Game:
         self.goalkeeper = Goalkeeper(self)
 
         self.map = Map(self)
+
+        self.menu = Menu(self)
 
         self.level = 0
 
@@ -95,32 +101,38 @@ class Game:
                 pygame.quit()
                 sys.exit()
 
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_p:
-                    if not self.paused:
-                        self.moving = False
-                        self.player.speed = 0
-                        for enemy in self.enemies:
-                            enemy.speed = 0
-                        self.paused = not self.paused
-                    else:
-                        self.player.speed = self.player.normalSpeed
-                        for enemy in self.enemies:
-                            enemy.speed = enemy.normalSpeed
-                        self.paused = not self.paused
+            if not self.menu.menu:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_p:
+                        if not self.paused:
+                            self.moving = False
+                            self.player.speed = 0
+                            for enemy in self.enemies:
+                                enemy.speed = 0
+                            self.paused = not self.paused
+                        else:
+                            self.player.speed = self.player.normalSpeed
+                            for enemy in self.enemies:
+                                enemy.speed = enemy.normalSpeed
+                            self.paused = not self.paused
 
-            if self.moving_mode:
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:
-                        self.moving = not self.moving
+                if self.moving_mode:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if event.button == 1:
+                            self.moving = not self.moving
+                else:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if event.button == 1 and not self.paused:
+
+                            self.moving = True
+                    if event.type == pygame.MOUSEBUTTONUP:
+                        if event.button == 1 and not self.paused:
+                            self.moving = False
             else:
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1 and not self.paused:
+                    if event.button == 1:
+                        self.menu.klickButtons(pygame.mouse.get_pos())
 
-                        self.moving = True
-                if event.type == pygame.MOUSEBUTTONUP:
-                    if event.button == 1 and not self.paused:
-                        self.moving = False
 
     def render_field(self):
         self.offset %= 144
@@ -160,10 +172,6 @@ class Game:
         self.player.render(self.moving)
         if len(self.enemies) == 0:
             self.display.blit(self.assets['field3'], (self.display.width - self.end_offset + 72 + 144 - 27, 101))
-
-        self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
-        if self.paused:
-            self.screen.fill((50,50,50), special_flags=pygame.BLEND_RGBA_MULT)
         pygame.display.update()
 
     def music_effects(self):
@@ -180,10 +188,17 @@ class Game:
     def run(self):
         self.start_music()
         while True:
+            if not self.menu.menu:
+                self.update()
+                self.render()
+                self.music_effects()
+            else:
+                self.menu.renderMenu(pygame.mouse.get_pos())
             self.handle_events()
-            self.update()
-            self.render()
-            self.music_effects()
+            self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
+            if self.paused:
+                self.screen.fill((50, 50, 50), special_flags=pygame.BLEND_RGBA_MULT)
+            pygame.display.update()
             self.clock.tick(self.fps)
 
 Game().run()
