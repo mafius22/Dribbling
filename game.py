@@ -66,7 +66,7 @@ class Game:
 
         self.menu = Menu(self)
 
-        self.level = 5
+        self.level = 0
 
         self.loadEnemies()
 
