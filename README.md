@@ -3,3 +3,6 @@
 ![](leo.png)
 
 ![](leo2.png)
+## Pasuje to miec zeby odpalic :)
+- pygame
+- python 
