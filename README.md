@@ -6,3 +6,7 @@
 ## Pasuje to miec zeby odpalic :)
 - pygame
 - python 
+## Odpalasz komenda 
+```bash
+python game.py
+```
