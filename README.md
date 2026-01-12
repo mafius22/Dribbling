@@ -1,8 +1,11 @@
 # Wejdz w skore Leo Messiego i wygraj final Ligi Mistrzow pokonujac real madryt.
 ---
-![](leo.png)
+![](data/images/leo.png)
 
-![](leo2.png)
-## Pasuje to miec zeby odpalic :)
-- pygame
-- python 
+![](data/images/leo2.png)
+
+## jak odpalic
+~~~
+pip install pygame-ce
+python src/game.py
+~~~

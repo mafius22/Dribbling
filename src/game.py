@@ -6,7 +6,8 @@ from map import Map
 from goalkeeper import Goalkeeper
 from utils import *
 from menu import Menu
-
+import random
+import math
 
 class Game:
     def __init__(self):
@@ -17,7 +18,7 @@ class Game:
         self.display = pygame.Surface((640, 384))  # 20x12 tiles
         self.clock = pygame.time.Clock()
         self.fps = 60
-
+        self.max_level = 5
         self.assets = {
             'player/run': Animation(load_sheet('player.png', 40, 40, 1, 8), loop=True, img_dur=5),
             'player/head': load_image('player_head.png'),
@@ -25,6 +26,7 @@ class Game:
             'enemy1/run': Animation(load_sheet('enemy2.png', 40, 40, 1, 8), loop=True, img_dur=5),
             'ball': Animation(load_sheet('ball.png', 16, 16, 1, 4), loop=True, img_dur=5),
             'field': load_image('field.png'),
+            'win': pygame.image.load('data/images/leomess.png').convert_alpha(),
             'field2': pygame.image.load('data/images/field2.png').convert_alpha(),
             'field3': load_image('field3.png'),
             'trybuny': pygame.image.load('data/images/trybuny.png').convert_alpha(),
@@ -46,7 +48,8 @@ class Game:
             'boo': pygame.mixer.Sound("data/music/crowd-large-outrage-then-booing-reaction-hockey-game-2011-25915 (mp3cut.net).mp3"),
         }
 
-        self.songs = ["data/music/We Are One (Ole Ola) [The Official 2014 FIFA World Cup Song] (Olodum Mix).mp3", "data/music/IShowSpeed - World Cup (Official Music Video) (mp3cut.net).mp3"]
+        self.songs = ["data/music/We Are One (Ole Ola) [The Official 2014 FIFA World Cup Song] (Olodum Mix).mp3", "data/music/IShowSpeed - World Cup (Official Music Video) (mp3cut.net).mp3",
+                       'data/music/Olele, Olala.mp3']
 
         self.moving = False
         self.moving_mode = False
@@ -68,6 +71,11 @@ class Game:
 
         self.level = 0
 
+        self.win = False
+        self.win_music_played = False
+
+        self.count = 0 
+
         self.loadEnemies()
 
 
@@ -82,7 +90,7 @@ class Game:
         self.time = 0
         self.timeMessi = 0
         try:
-            self.map.load(f'map{self.level}.json')
+            self.map.load(f'data/maps/map{self.level}.json')
         except FileNotFoundError:
             pass
 
@@ -184,18 +192,26 @@ class Game:
                 self.music['messi'].play()
             self.timeMessi += 1
 
-        if self.level == 3:
+        if self.level == 5:
             if self.timeMessi == 590:
                 self.music['ankara_messi'].play()
             self.timeMessi += 1
 
+    def check_win(self):
+        if self.level > self.max_level:
+            self.win = True
+    
     def run(self):
         self.start_music()
         while True:
             if not self.menu.menu:
-                self.update()
-                self.render()
-                self.music_effects()
+                if not self.win:
+                    self.update()
+                    self.render()
+                    self.music_effects()
+                    self.check_win()
+                else:
+                    self.run_win_screen()
             else:
                 self.menu.renderMenu(pygame.mouse.get_pos())
             self.handle_events()
@@ -204,5 +220,30 @@ class Game:
                 self.screen.fill((50, 50, 50), special_flags=pygame.BLEND_RGBA_MULT)
             pygame.display.update()
             self.clock.tick(self.fps)
+
+    def run_win_screen(self):
+            if self.count < 250:
+                if pygame.mixer.music.get_busy():
+                    pygame.mixer.music.stop()
+
+                self.display.fill((0,0,0))
+                self.count += 1
+
+            else:
+                offset_y = math.sin(pygame.time.get_ticks() * 0.006) * 15
+
+                center_x = self.display.get_width() // 2
+                center_y = self.display.get_height() // 2
+
+                win_image = self.assets['win']
+                win_rect = win_image.get_rect(center=(center_x, center_y + offset_y))
+
+                self.display.blit(win_image, win_rect)
+
+                if not self.win_music_played:
+                    pygame.mixer.music.stop()
+                    pygame.mixer.music.load(self.songs[2])
+                    pygame.mixer.music.play(0)
+                    self.win_music_played = True
 
 Game().run()

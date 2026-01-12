@@ -33,7 +33,7 @@ class Editor:
         self.map = Map(self)
 
         try:
-            self.map.load(f'map{MAP}.json')
+            self.map.load(f'data/maps/map{MAP}.json')
         except FileNotFoundError:
             pass
 
