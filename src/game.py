@@ -48,8 +48,7 @@ class Game:
             'boo': pygame.mixer.Sound("data/music/crowd-large-outrage-then-booing-reaction-hockey-game-2011-25915 (mp3cut.net).mp3"),
         }
 
-        self.songs = ["data/music/We Are One (Ole Ola) [The Official 2014 FIFA World Cup Song] (Olodum Mix).mp3", "data/music/IShowSpeed - World Cup (Official Music Video) (mp3cut.net).mp3",
-                       'data/music/Olele, Olala.mp3']
+        self.songs = ["data/music/We Are One (Ole Ola) [The Official 2014 FIFA World Cup Song] (Olodum Mix).mp3", "data/music/IShowSpeed - World Cup (Official Music Video) (mp3cut.net).mp3"]
 
         self.moving = False
         self.moving_mode = False
@@ -242,7 +241,7 @@ class Game:
 
                 if not self.win_music_played:
                     pygame.mixer.music.stop()
-                    pygame.mixer.music.load(self.songs[2])
+                    pygame.mixer.music.load('data/music/Olele, Olala.mp3')
                     pygame.mixer.music.play(0)
                     self.win_music_played = True
 
